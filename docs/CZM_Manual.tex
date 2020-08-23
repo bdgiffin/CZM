@@ -1,0 +1,125 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% Example of the Memoir class, an alternative to the default LaTeX classes such as article and book, with many added features built into the class itself.
+
+\documentclass[12pt, a4paper,oneside, openany]{memoir}
+\usepackage{hyperref}
+\hypersetup{
+    bookmarks=true,         % show bookmarks bar?
+    pdftoolbar=true,        % show Acrobat’s toolbar?
+    pdfmenubar=true,        % show Acrobat’s menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdftitle={CZM Manual},  % title
+    colorlinks=true,        % false: boxed links; true: colored links
+    linkcolor=blue,         % color of internal links (change box color with linkbordercolor)
+    citecolor=blue,         % color of links to bibliography
+    filecolor=blue,         % color of file links
+    urlcolor=cyan           % color of external links
+}
+
+\usepackage{graphicx} % support the \includegraphics command and options
+
+\usepackage[utf8]{inputenc} % set input encoding to utf8
+\usepackage{amssymb}
+\usepackage{amsmath}
+%\usepackage{stmaryrd}
+
+\usepackage{algorithmicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{listings}
+\lstset{
+	language=C++,
+	basicstyle=\ttfamily,
+	tabsize=2
+}
+
+% Don't forget to read the Memoir manual: memman.pdf
+
+%%% Examples of Memoir customization
+%%% enable, disable or adjust these as desired
+
+%%% PAGE DIMENSIONS
+% Set up the paper to be as close as possible to both A4 & letter:
+\settrimmedsize{11in}{210mm}{*} % letter = 11in tall; a4 = 210mm wide
+\setlength{\trimtop}{0pt}
+\setlength{\trimedge}{\stockwidth}
+\addtolength{\trimedge}{-\paperwidth}
+\settypeblocksize{*}{\lxvchars}{1.618} % we want to the text block to have golden proportionals
+\setulmargins{50pt}{*}{*} % 50pt upper margins
+\setlrmargins{*}{*}{1.618} % golden ratio again for left/right margins
+\setheaderspaces{*}{*}{1.618}
+\checkandfixthelayout 
+% This is from memman.pdf
+\usepackage[margin=1.0in]{geometry}
+
+%%% \maketitle CUSTOMISATION
+% For more than trivial changes, you may as well do it yourself in a titlepage environment
+%\pretitle{\begin{center}\sffamily\Huge\MakeUppercase}
+\pretitle{\begin{center}\huge}
+\posttitle{\par\end{center}\vskip 0.5em}
+
+%%% ToC (table of contents) APPEARANCE
+\maxtocdepth{subsection} % include subsections
+\renewcommand{\cftchapterpagefont}{}
+\renewcommand{\cftchapterfont}{}     % no bold!
+
+%%% HEADERS & FOOTERS
+\pagestyle{ruled} % try also: empty , plain , headings , ruled , Ruled , companion
+
+%%% CHAPTERS
+\chapterstyle{dash} % try also: default , section , hangnum , companion , article, demo
+
+\renewcommand{\chaptitlefont}{\normalfont\Huge\center\scshape} % set sans serif chapter title font
+\renewcommand{\chapnumfont}{\normalfont\Huge\scshape} % set sans serif chapter number font
+
+%%% SECTIONS
+\hangsecnum % hang the section numbers into the margin to match \chapterstyle{article}
+\maxsecnumdepth{subsection} % number subsections
+
+\setsecheadstyle{\normalfont\Large\raggedright\scshape} % set sans serif section font
+%\setsubsecheadstyle{\large\sffamily\raggedright} % set sans serif subsection font
+
+%% END Memoir customization
+
+\renewcommand{\maketitlehookb}{\centering\textsc{\subtitle}}
+
+%%% BEGIN DOCUMENT
+\begin{document}
+
+%%% TITLE
+\title{ \includegraphics[width = 3in]{figures/czm_logo.pdf} }
+\newcommand{\subtitle}{A cohesive zone modeling library}
+\author{\textit{Brian D. Giffin}}
+\date{} % Delete this line to display the current date
+
+\maketitle
+
+\thispagestyle{empty}
+
+\frontmatter
+
+\tableofcontents* % the asterisk means that the contents itself isn't put into the ToC
+
+\mainmatter
+
+\chapter{Introduction}
+
+This is a guide to the CZM library.
+
+\newpage
+
+\chapter{Theoretical Background} \label{sec:theory}
+
+This section summarizes some of the theoretical concepts underpinning the cohesive zome model (CZM) concept -- a computational approach commonly used to solve fracture problems in engineering analysis. This discussion is intended to aid and inform prospective users or developers about the corresponding capabilities (and limitations) of CZM, and of the cohesive zone method, more generally.
+
+\section{Overview of Cohesive Zone Models}
+
+
+
+\bibliography{CZM_Manual}
+\bibliographystyle{plain}
+
+\end{document}

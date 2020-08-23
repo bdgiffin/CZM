@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -g -O3 -Wall    CMakeFiles/czm_demo.dir/czm_demo.cpp.o  -o czm_demo -rdynamic -lGLU -lGL -lSM -lICE -lX11 -lXext -lglut -lXmu -lXi -Wl,-Bstatic -lSOIL -Wl,-Bdynamic 
