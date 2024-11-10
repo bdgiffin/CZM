@@ -21,7 +21,7 @@ public:
 
   virtual void initialize(void) = 0;
 
-  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, uint size) = 0;
+  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, int size) = 0;
 
   void applyForces(Blocks& blocks) {
     // declare local workspace arrays
@@ -46,7 +46,7 @@ public:
     float divsqrt3 = 1.0/sqrt(3.0);
 
     // loop over all x-faces
-    for (uint i = 0; i < xFaceIDs.size(); i++) {
+    for (int i = 0; i < xFaceIDs.size(); i++) {
       // get the global block ids of the current x-face
       int left  = xFaceIDs[i].first;
       int right = xFaceIDs[i].second;
@@ -111,7 +111,7 @@ public:
     computeTraction(ux,uy,vx,vy,nx,ny,tx,ty,divdx,Orientation::X,2*xFaceIDs.size());
 
     // loop over all x-faces
-    for (uint i = 0; i < xFaceIDs.size(); i++) {
+    for (int i = 0; i < xFaceIDs.size(); i++) {
       // get the global block ids of the current x-face
       int left  = xFaceIDs[i].first;
       int right = xFaceIDs[i].second;
@@ -128,7 +128,7 @@ public:
     } // for i = ...
 
     // loop over all y-faces
-    for (uint i = 0; i < yFaceIDs.size(); i++) {
+    for (int i = 0; i < yFaceIDs.size(); i++) {
       // get the global block ids of the current y-face
       int lower = yFaceIDs[i].first;
       int upper = yFaceIDs[i].second;
@@ -193,7 +193,7 @@ public:
     computeTraction(ux,uy,vx,vy,nx,ny,tx,ty,divdx,Orientation::Y,2*yFaceIDs.size());
 
     // loop over all y-faces
-    for (uint i = 0; i < yFaceIDs.size(); i++) {
+    for (int i = 0; i < yFaceIDs.size(); i++) {
       // get the global block ids of the current y-face
       int lower = yFaceIDs[i].first;
       int upper = yFaceIDs[i].second;
@@ -225,13 +225,13 @@ public:
 
   virtual void initialize(void) { } // initialize()
 
-  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, uint size) {
+  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, int size) {
     // pre-compute material constants, adjusted by length scale (and possibly initial orientation)
     float Edivdx   = stiffness*divdx;
     float etadivdx = viscosity*divdx;
 
     // loop over all quadrature points
-    for (uint i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
       tx[i] = Edivdx*ux[i] + etadivdx*vx[i];
       ty[i] = Edivdx*uy[i] + etadivdx*vy[i];
     } // for i = ...
@@ -252,13 +252,13 @@ public:
     
   } // initialize()
 
-  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, uint size) {
+  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, int size) {
     // pre-compute material constants, adjusted by length scale (and possibly initial orientation)
     float etadivdx = viscosity*divdx;
     float Edivdx   = stiffness*divdx;
 
     // loop over all quadrature points
-    for (uint i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
       tx[i] = Edivdx*ux[i] + etadivdx*vx[i];
       ty[i] = Edivdx*uy[i] + etadivdx*vy[i];
     } // for i = ...
@@ -298,7 +298,7 @@ public:
     std::fill(yFailed.begin(), yFailed.end(), 0);
   } // initialize()
 
-  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, uint size) {
+  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, int size) {
     // pre-compute material constants, adjusted by length scale (and possibly initial orientation)
     float divEdx = divdx/stiffness;
     float etadivEdx = divEdx*viscosity;
@@ -315,7 +315,7 @@ public:
     } // check X/Y-face orientation
 
     // loop over all quadrature points
-    for (uint i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
       if (failed[i] == 0) {
 	// transform relative displacement (normalized by element length) into relative coordinate system
 	// with respect to the current face normal

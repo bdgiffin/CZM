@@ -10,7 +10,7 @@ public:
   void evaluate(float time, float& uxt, float& uyt) {
     float frac = time / dt;
     int n = floor(frac);
-    if (uint(n+1) < ux.size()) {
+    if ((n+1) < ux.size()) {
       frac -= n;
       uxt = scale*(frac*ux[n+1] + (1.0-frac)*ux[n]);
       uyt = 0.0*(frac*uy[n+1] + (1.0-frac)*uy[n]);

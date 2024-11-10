@@ -2,9 +2,9 @@
 #define BLOCKS_H
 
 #if __APPLE__
-#include <GLUT/freeglut.h>
+#include <GLUT/glut.h>
 #else
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 #endif
 
 #include "Materials.h"
@@ -35,7 +35,7 @@ public:
     mz.clear();
     fixity.clear();
 
-    player_mat = NULL;
+    player_mat = nullptr;
     player_mass = 0.0;
     player_px = 0.0;
     player_py = 0.0;
@@ -52,7 +52,7 @@ public:
     dhdL = h / L;
     for (int i = 0; i < grid.Nx; i++) {
       for (int j = 0; j < grid.Ny; j++) {
-	if (grid.cells[grid.Nx*j+i] != NULL) {
+	if (grid.cells[grid.Nx*j+i] != nullptr) {
 	  float area = L*L;
 	  float value = grid.cells[grid.Nx*j+i]->density * area;
 	  if (grid.cells[grid.Nx*j+i]->name == "Player") {
@@ -80,7 +80,7 @@ public:
 	    grid.blockIDs[grid.Nx*j+i] = Nblocks;
 	    Nblocks++;
 	  } // if (grid.cells[grid.Nx*j+i].name == "Player")
-	} // if (grid.cells[grid.Nx*j+i] != NULL)
+	} // if (grid.cells[grid.Nx*j+i] != nullptr)
       } // for j = ...
     } // for i = ...
   } // initialize()
@@ -113,15 +113,15 @@ public:
     } // for i = ...
 
     // apply body force to player
-    if (player_mat != NULL) {
+    if (player_mat != nullptr) {
       player_fx += player_mass * bx;
       player_fy += player_mass * by;
-    } // if (player_mat != NULL)
+    } // if (player_mat != nullptr)
   } // applyBodyForce()
 
   void applyContactForces(void) {
     // apply contact force to player
-    if (player_mat != NULL) {
+    if (player_mat != nullptr) {
       float halfL = 0.51*L;
       float halfB = 0.5*L;
       float maxContactDistanceSquared = 2.0*L*L;
@@ -282,7 +282,7 @@ public:
 	  
 	} // if ((distX*distX+distY*distY) < maxContactDistanceSquared)
       } // for i = ...
-    } // if (player_mat != NULL)
+    } // if (player_mat != nullptr)
   } // applyContactForces()
 
   void applyAcceleration(float ax, float ay) {
@@ -292,10 +292,10 @@ public:
     } // for i = ...
 
     // apply acceleration to player
-    if (player_mat != NULL) {
+    if (player_mat != nullptr) {
       player_fx += ax;
       player_fy += ay;
-    } // if (player_mat != NULL)
+    } // if (player_mat != nullptr)
   } // applyAcceleration()
 
   void applyDragForce(float drag_coefficient) {
@@ -308,11 +308,11 @@ public:
     } // for i = ...
 
     // apply drag to player
-    if (player_mat != NULL) {
+    if (player_mat != nullptr) {
       float drag_force = drag_coefficient * (player_vx*player_vx + player_vy*player_vy);
       player_fx -= drag_force * player_vx;
       player_fy -= drag_force * player_vy;
-    } // if (player_mat != NULL)
+    } // if (player_mat != nullptr)
   } // applyDragForce()
 
   void timeIntegrate(float dt) {
@@ -330,46 +330,57 @@ public:
     } // for i = ...
 
     // integrate player position in time
-    if (player_mat != NULL) {
+    if (player_mat != nullptr) {
       player_vx += dt * player_fx / player_mass;
       player_vy += dt * player_fy / player_mass;
       player_px += dt * player_vx;
       player_py += dt * player_vy;
-    } // if (player_mat != NULL)
+    } // if (player_mat != nullptr)
   } // timeIntegrate()
 
   void render(void) {
     
     // load material textures
-    glBindTexture(GL_TEXTURE_2D, Material::textures);
-    glEnable(GL_TEXTURE_2D);
+    //glBindTexture(GL_TEXTURE_2D, Material::textures);
+    //glEnable(GL_TEXTURE_2D);
     
     float halfh = 0.5*h;
 
     // draw blocks
     glBegin(GL_QUADS);
-    glColor4f(1.0, 1.0, 1.0, 1);
     for (int i = 0; i < Nblocks; i++) {
       float s = sin(rz[i]);
       float c = cos(rz[i]);
       float drx = (c-s)*halfh;
       float dry = (c+s)*halfh;
+      float* color  = mat[i]->color;
       float* coords = mat[i]->coord;
+      glColor4f(color[0], color[1], color[2], 1);
       glTexCoord2f(coords[0], coords[1]); glVertex2f(dhdL*px[i]-drx,dhdL*py[i]-dry);
+      glColor4f(color[0], color[1], color[2], 1);
       glTexCoord2f(coords[2], coords[1]); glVertex2f(dhdL*px[i]+dry,dhdL*py[i]-drx);
+      glColor4f(color[0], color[1], color[2], 1);
       glTexCoord2f(coords[2], coords[3]); glVertex2f(dhdL*px[i]+drx,dhdL*py[i]+dry);
+      glColor4f(color[0], color[1], color[2], 1);
       glTexCoord2f(coords[0], coords[3]); glVertex2f(dhdL*px[i]-dry,dhdL*py[i]+drx);
     } // for i = ...
     // draw player
-    float* coords = player_mat->coord;
-    glTexCoord2f(coords[0], coords[1]); glVertex2f(dhdL*player_px-halfh,dhdL*player_py-halfh);
-    glTexCoord2f(coords[2], coords[1]); glVertex2f(dhdL*player_px+halfh,dhdL*player_py-halfh);
-    glTexCoord2f(coords[2], coords[3]); glVertex2f(dhdL*player_px+halfh,dhdL*player_py+halfh);
-    glTexCoord2f(coords[0], coords[3]); glVertex2f(dhdL*player_px-halfh,dhdL*player_py+halfh);
+    if (player_mat != nullptr) {
+      float* color  = player_mat->color;
+      float* coords = player_mat->coord;
+      glColor4f(color[0], color[1], color[2], 1);
+      glTexCoord2f(coords[0], coords[1]); glVertex2f(dhdL*player_px-halfh,dhdL*player_py-halfh);
+      glColor4f(color[0], color[1], color[2], 1);
+      glTexCoord2f(coords[2], coords[1]); glVertex2f(dhdL*player_px+halfh,dhdL*player_py-halfh);
+      glColor4f(color[0], color[1], color[2], 1);
+      glTexCoord2f(coords[2], coords[3]); glVertex2f(dhdL*player_px+halfh,dhdL*player_py+halfh);
+      glColor4f(color[0], color[1], color[2], 1);
+      glTexCoord2f(coords[0], coords[3]); glVertex2f(dhdL*player_px-halfh,dhdL*player_py+halfh);
+    }
     glEnd();
 
-    glDisable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    //glDisable(GL_TEXTURE_2D);
+    //glBindTexture(GL_TEXTURE_2D, 0);
   } // render()
 
   int Nblocks;

@@ -2,9 +2,9 @@
 #define CZM_H
 
 #if __APPLE__
-#include <GLUT/freeglut.h>
+#include <GLUT/glut.h>
 #else
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 #endif
 
 #include "Materials.h"

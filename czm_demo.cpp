@@ -1,14 +1,16 @@
 #if __APPLE__
-#include <GLUT/freeglut.h>
+#include <GLUT/glut.h>
 #else
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 #endif
 
 #include <string>
 #include <iostream>
 #include <fstream>
 
-#include <SOIL/SOIL.h>
+//#include <SOIL/SOIL.h>
+#define STB_IMAGE_IMPLEMENTATION 
+#include "stb/stb_image.h"
 #include "CZM.h"
 
 using namespace std;
@@ -16,8 +18,11 @@ using namespace std;
 CZM czm;
 
 // rendering projection parameters
-const static int WINDOW_WIDTH  = 1600;
-const static int WINDOW_HEIGHT = 1000;
+const static int NX_CELLS = 32;
+const static int NY_CELLS = 20;
+const static int CELL_SIZE = 40;
+const static int WINDOW_WIDTH  = NX_CELLS*CELL_SIZE; //1600;
+const static int WINDOW_HEIGHT = NY_CELLS*CELL_SIZE; //1000;
 const static double VIEW_SCALE = 1.0;
 const static double VIEW_WIDTH = VIEW_SCALE*WINDOW_WIDTH;
 const static double VIEW_HEIGHT = VIEW_SCALE*WINDOW_HEIGHT;
@@ -25,17 +30,60 @@ const static double VIEW_HEIGHT = VIEW_SCALE*WINDOW_HEIGHT;
 const static float DT = 0.5f; // integration timestep
 
 GLuint LoadTexture( const char * filename ) {
-  GLuint texture = SOIL_load_OGL_texture(filename,SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
+  //GLuint texture;
+  //glGenTextures(1, &texture);
+  //
+  ////GLuint texture = SOIL_load_OGL_texture(filename,SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
+  //
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  //
+  //int width, height, nrChannels;
+  //unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 3);
+  //if (data) {
+  //  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+  //  glGenerateMipmap(GL_TEXTURE_2D);
+  //} else {
+  //  // Handle loading error
+  //}
+  //
+  //// Typical Texture Generation Using Data From The Bitmap
+  //glBindTexture(GL_TEXTURE_2D, texture);
+  //stbi_image_free(data);
 
-  // Typical Texture Generation Using Data From The Bitmap
+  //glBindTexture (GL_TEXTURE_2D, 0);
+
+  // Create and bind new texture
+  GLuint texture;
+  glGenTextures(1, &texture);
   glBindTexture(GL_TEXTURE_2D, texture);
+    
+  // Load texture using stb_image
+  int width, height, nrChannels;
+  stbi_set_flip_vertically_on_load(1);
+  unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
+  if (data) {
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // Generate texture
+    //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    //glGenerateMipmap(GL_TEXTURE_2D);
 
-  glBindTexture (GL_TEXTURE_2D, 0);
+    // Free image data
+    stbi_image_free(data);
+  } else {
+    std::cout << "Failed to load texture" << std::endl;
+  }
+
+  // unbind texture
+  glBindTexture(GL_TEXTURE_2D, 0);
 
   return texture;
 } // LoadTexture()
@@ -43,7 +91,7 @@ GLuint LoadTexture( const char * filename ) {
 void InitCZM(void) {
 
   // create blank grid
-  czm.initialize(WINDOW_WIDTH/50, WINDOW_HEIGHT/50, VIEW_WIDTH, VIEW_HEIGHT);
+  czm.initialize(NX_CELLS, NY_CELLS, VIEW_WIDTH, VIEW_HEIGHT);
 
 } // InitCZM()
 
@@ -75,11 +123,11 @@ void drawText(float x, float y, char* text) {
      GLUT_BITMAP_HELVETICA_12
      GLUT_BITMAP_HELVETICA_18 
   */
-  glColor3f(czm.grid.brushColor->color[0], czm.grid.brushColor->color[1], czm.grid.brushColor->color[2]);
-  glRasterPos2f(x, y);
-  for (char* c = text; *c != '\0'; c++) {
-    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);  // Updates the position
-  }
+  //glColor3f(czm.grid.brushColor->color[0], czm.grid.brushColor->color[1], czm.grid.brushColor->color[2]);
+  //glRasterPos2f(x, y);
+  //for (char* c = text; *c != '\0'; c++) {
+  //  glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);  // Updates the position
+  //}
 } // drawText()
 
 void Render(void) {
@@ -153,6 +201,10 @@ void GridSwipeRemove(int x, int y) {
   czm.grid.swipeRemove(x, y);
 } // GridSwipeRemove()
 
+void GridHighlight(int x, int y) {
+  czm.grid.update_cursor(x, y);
+} // GridHighlight()
+
 int main(int argc, char** argv) {
   glutInitWindowSize(WINDOW_WIDTH,WINDOW_HEIGHT);
   glutInit(&argc, argv);
@@ -160,6 +212,7 @@ int main(int argc, char** argv) {
   glutCreateWindow("CZM Library Demo");
   glutDisplayFunc(Render);
   glutIdleFunc(Update);
+  glutPassiveMotionFunc(GridHighlight);
   glutMouseFunc(Mouse);
   glutKeyboardFunc(Keyboard);
   glutSpecialFunc(Arrows);
@@ -174,8 +227,8 @@ int main(int argc, char** argv) {
   czm.inventory.insertMaterial(new Material("Concrete",  2400.0,      32, 0.75, 0.75, 0.75, 0.4, 0.0, 0.6, 0.2));
   czm.inventory.insertMaterial(new Material("Wood",       600.0,      32, 0.80, 0.45, 0.10, 0.6, 0.0, 0.8, 0.2));
   czm.inventory.insertMaterial(new Material("Steel",     8050.0,      16, 0.50, 0.63, 0.70, 0.8, 0.0, 1.0, 0.2));
-  czm.inventory.insertMaterial(new Material("Water",     1000.0,      32, 0.29, 0.22, 1.00, 0.0, 0.2, 0.2, 0.4));
-  czm.inventory.insertMaterial(new Material("Player",    1000.0,       1, 1.00, 0.00, 0.50, 0.2, 0.2, 0.4, 0.4));
+  //czm.inventory.insertMaterial(new Material("Water",     1000.0,      32, 0.29, 0.22, 1.00, 0.0, 0.2, 0.2, 0.4));
+  //czm.inventory.insertMaterial(new Material("Player",    1000.0,       1, 1.00, 0.00, 0.50, 0.2, 0.2, 0.4, 0.4));
 
   // set default brush color
   czm.grid.brushColor = czm.inventory.getFirstMaterial();

@@ -1,13 +1,13 @@
 #if __APPLE__
-#include <GLUT/freeglut.h>
+#include <GLUT/glut.h>
 #else
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 #endif
 
 #include <string>
 #include <iostream>
 
-#include <SOIL/SOIL.h>
+//#include <SOIL/SOIL.h>
 #include "Materials.h"
 #include "Grid.h"
 
@@ -62,7 +62,7 @@ void drawText(float x, float y, char* text) {
 } // drawText()
 
 GLuint LoadTexture( const char * filename ) {
-  GLuint texture = SOIL_load_OGL_texture(filename,SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
+  //GLuint texture = SOIL_load_OGL_texture(filename,SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
 
   // Typical Texture Generation Using Data From The Bitmap
   glBindTexture(GL_TEXTURE_2D, texture);
