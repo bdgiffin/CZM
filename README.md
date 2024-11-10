@@ -6,6 +6,6 @@ As a demonstration of the project's core capabilities, an interactive earthquake
  - Left Mouse Button: Add material to the selected grid cell.
  - Right Mouse Button: Remove material from the selected grid cell.
  - Mouse Wheel: Switch between material types.
- - `s`: Start (or restart) the dynamic simulation.
- - `r`: Erase the current material layout.
+ - `s`: Start the dynamic simulation.
+ - `r`: Remove material from all grid cells.
  - `e`: Edit material layout.
