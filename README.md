@@ -1,4 +1,5 @@
 # <img width="500" src="/docs/figures/czm_logo.svg?raw=true" alt="CZM">
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14261038.svg)](https://doi.org/10.5281/zenodo.14261038)
 
 **CZM** is an interactive **C**ohesive **Z**one **M**odeling library designed to run in real time, created primarily for educational purposes.
 
