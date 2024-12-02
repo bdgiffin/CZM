@@ -1,0 +1,13 @@
+abstract: <p>Beta release of the CZM library.</p>
+authors:
+- affiliation: Oklahoma State University
+  family-names: Brian Doran Giffin
+cff-version: 1.2.0
+date-released: '2024-12-02'
+doi: 10.5281/zenodo.14261038
+license:
+- cc-by-4.0
+repository-code: https://github.com/bdgiffin/CZM/tree/v25.0-beta
+title: 'bdgiffin/CZM: CZM v25.0-beta'
+type: software
+version: v25.0-beta
