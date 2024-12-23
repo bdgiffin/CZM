@@ -51,6 +51,10 @@ public:
     std::fill(blockIDs.begin(), blockIDs.end(), -1);
   } // initialize()
 
+  void edit() {
+    std::fill(blockIDs.begin(), blockIDs.end(), -1);
+  } // edit()
+
   void swipeAdd(int x, int y) {
     int i = std::min(std::max(int(floor(x / dx)),0),Nx-1);
     int j = std::min(std::max(Ny-1-int(floor(y / dx)),0),Ny-1);
@@ -116,15 +120,15 @@ public:
   void render(void) {
 
     // load material textures
-    //glBindTexture(GL_TEXTURE_2D, Material::textures);
-    //glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, Material::textures);
+    glEnable(GL_TEXTURE_2D);
 
     // draw highlighted cell
     if (brushColor->quantity > 0) {
       glBegin(GL_QUADS);
       int i = current_ij[0];
       int j = current_ij[1];
-      float* color  = brushColor->color;
+      float color[3] = { 1.0f, 1.0f, 1.0f };
       float* coords = brushColor->coord;
       glColor4f(color[0], color[1], color[2], 0.2);
       glTexCoord2f(coords[0], coords[1]); glVertex2f(dx*i,dx*j);
@@ -142,7 +146,7 @@ public:
     for (int i = 0; i < Nx; i++) {
       for (int j = 0; j < Ny; j++) {
 	if (cells[Nx*j+i] != nullptr) {
-	  float* color  = cells[Nx*j+i]->color;
+	  float color[3] = { 1.0f, 1.0f, 1.0f };
 	  float* coords = cells[Nx*j+i]->coord;
 	  glColor4f(color[0], color[1], color[2], 1);
 	  glTexCoord2f(coords[0], coords[1]); glVertex2f(dx*i,dx*j);
@@ -157,8 +161,8 @@ public:
     } // for i = ...
     glEnd();
 
-    //glDisable(GL_TEXTURE_2D);
-    //glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
     
     // draw grid lines
     glBegin(GL_LINES);

@@ -8,8 +8,8 @@ class Material {
 public:
   
   Material(std::string newName, float newDensity, int newQuantity, float r, float g, float b, float x0, float y0, float x1, float y1) {
-    prev = NULL;
-    next = NULL;
+    prev = nullptr;
+    next = nullptr;
     name = newName;
     density = newDensity;
     quantity = newQuantity;
@@ -39,7 +39,7 @@ class MaterialInventory {
 public:
 
   MaterialInventory() {
-    head = NULL;
+    head = nullptr;
   } // MaterialInventory()
 
   Material* getFirstMaterial() {

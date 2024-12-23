@@ -10,6 +10,8 @@ enum Orientation { X, Y };
 
 class CohesiveZone {
 public:
+
+  virtual ~CohesiveZone() = default;
   
   void insertFaceX(int left, int right) {
     xFaceIDs.push_back(std::pair<int,int>(left,right));
@@ -25,7 +27,7 @@ public:
 
   void applyForces(Blocks& blocks) {
     // declare local workspace arrays
-    int MAX_SIZE = 128;
+    int MAX_SIZE = 256;
     float nx[MAX_SIZE];
     float ny[MAX_SIZE];
     float ux[MAX_SIZE];
@@ -284,7 +286,7 @@ public:
       // brittle failure, unstable crack growth
       Esoftening = failureStress/(1.0e-16);
     }
-  } // BrittleDamage()
+  } // CohesiveDamage()
 
   virtual void initialize(void) {
     // allocate history variables for damaged interfaces
@@ -363,5 +365,87 @@ public:
   std::vector<float> yEdamaged;
   std::vector<int>   yFailed;
 }; // CohesiveDamage
+
+class Plasticity : public KelvinVoigt {
+public:
+  
+  Plasticity(float newYieldStress, float newHardening, float newFailureStrain, float newStiffness, float newViscosity) : KelvinVoigt(newStiffness,newViscosity) {
+    yieldStress   = newYieldStress;
+    Ehardening    = newHardening;
+    failureStrain = newFailureStrain;
+  } // Plasticity()
+
+  virtual void initialize(void) {
+    // allocate history variables for damaged interfaces
+    xEffectivePlasticSlip.resize(2*xFaceIDs.size());
+    yEffectivePlasticSlip.resize(2*yFaceIDs.size());
+    xPlasticSlip.resize(2*xFaceIDs.size());
+    yPlasticSlip.resize(2*yFaceIDs.size());
+    std::fill(xEffectivePlasticSlip.begin(), xEffectivePlasticSlip.end(), 0.0);
+    std::fill(yEffectivePlasticSlip.begin(), yEffectivePlasticSlip.end(), 0.0);
+    std::fill(xPlasticSlip.begin(), xPlasticSlip.end(), 0.0);
+    std::fill(yPlasticSlip.begin(), yPlasticSlip.end(), 0.0);
+  } // initialize()
+
+  virtual void computeTraction(float* ux, float* uy, float* vx, float* vy, float* nx, float* ny, float* tx, float* ty, float divdx, Orientation dir, int size) {
+    // load appropriate history variables
+    float* effectivePlasticSlip;
+    float* plasticSlip;
+    if (dir == Orientation::X) {
+      effectivePlasticSlip = xEffectivePlasticSlip.data();
+      plasticSlip = xPlasticSlip.data();
+    } else { // if (dir == Orientation::Y)
+      effectivePlasticSlip = yEffectivePlasticSlip.data();
+      plasticSlip = yPlasticSlip.data();
+    } // check X/Y-face orientation
+
+    // loop over all quadrature points
+    for (int i = 0; i < size; i++) {
+      if (effectivePlasticSlip[i] < failureStrain) {
+	// transform relative displacement (normalized by element length) into relative coordinate system
+	// with respect to the current face normal
+	// { un } = [ +nx +ny ] { ux }
+	// { ut } = [ -ny +nx ] { uy }
+	float un = (+ nx[i]*ux[i] + ny[i]*uy[i])*divdx;
+	float ut = (- ny[i]*ux[i] + nx[i]*uy[i])*divdx;
+	float vn = (+ nx[i]*vx[i] + ny[i]*vy[i])*divdx;
+	float vt = (- ny[i]*vx[i] + nx[i]*vy[i])*divdx;
+	
+	// compute the current trial elastic traction in the relative coordinate system
+	float tn = stiffness*un;
+	float tt = stiffness*(ut - plasticSlip[i]);
+
+	// check for yielding and conditionally update the plastic slip
+	// fy = fy_trial - (slip_dir*stiffness + Ehardening)*dSlip <= 0
+	float fy_trial = fabs(tt) - (yieldStress + Ehardening*plasticSlip[i]);
+	float slip_dir = (tt > 0.0) ? +1.0 : -1.0;
+	float dSlip = fmax(fy_trial,0.0)/(slip_dir*stiffness+Ehardening);
+	plasticSlip[i] += dSlip;
+	effectivePlasticSlip[i] += fabs(dSlip);
+
+	// update the post-yielding traction and include the viscous traction contribution
+	tn += viscosity*vn;
+	tt  = stiffness*(ut - plasticSlip[i]) + viscosity*vt;
+      
+	// rotate the traction into the global coordinate system
+	// { tx } = [ +nx -ny ] { tn }
+	// { ty } = [ +ny +nx ] { tt }
+	tx[i] = + nx[i]*tn - ny[i]*tt;
+	ty[i] = + ny[i]*tn + nx[i]*tt;
+      } else {
+	tx[i] = 0.0;
+	ty[i] = 0.0;
+      } // if (failed)
+    } // for i = ...
+  } // computeTraction()
+
+  float Ehardening;
+  float yieldStress;
+  float failureStrain;
+  std::vector<float> xEffectivePlasticSlip;
+  std::vector<float> xPlasticSlip;
+  std::vector<float> yEffectivePlasticSlip;
+  std::vector<float> yPlasticSlip;
+}; // Plasticity
 
 #endif // COHESIVE_ZONE_H

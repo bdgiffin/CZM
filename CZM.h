@@ -35,6 +35,7 @@ public:
 
   void edit(void) {
     simulate = false;
+    grid.edit();
   } // editGrid()
 
   void simulation() {

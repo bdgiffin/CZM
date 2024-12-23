@@ -50,18 +50,20 @@ public:
     h = grid.dx;
     L = 1.0; // [1 meter]
     dhdL = h / L;
-    for (int i = 0; i < grid.Nx; i++) {
-      for (int j = 0; j < grid.Ny; j++) {
-	if (grid.cells[grid.Nx*j+i] != nullptr) {
+    for (int j = 0; j < grid.Ny; j++) {
+      for (int i = 0; i < grid.Nx; i++) {
+	int cell_id = grid.Nx*j+i;
+	grid.blockIDs[cell_id] = -1;
+	if (grid.cells[cell_id] != nullptr) {
 	  float area = L*L;
-	  float value = grid.cells[grid.Nx*j+i]->density * area;
-	  if (grid.cells[grid.Nx*j+i]->name == "Player") {
-	    player_mat = grid.cells[grid.Nx*j+i];
+	  float value = grid.cells[cell_id]->density * area;
+	  if (grid.cells[cell_id]->name == "Player") {
+	    player_mat = grid.cells[cell_id];
 	    player_mass = value;
 	    player_px = L*(i+0.5);
 	    player_py = L*(j+0.5);
 	  } else {
-	    mat.push_back(grid.cells[grid.Nx*j+i]);
+	    mat.push_back(grid.cells[cell_id]);
 	    mass.push_back(value);
 	    value = 1.0 / value;
 	    imass.push_back(value);
@@ -76,13 +78,13 @@ public:
 	    fy.push_back(0.0);
 	    mz.push_back(0.0);
 	    fixity.push_back(1.0);
-	    if ((i == 0) || (j == 0) || (i == grid.Nx-1) || (j == grid.Ny-1)) fixity[Nblocks] = 0.0;
-	    grid.blockIDs[grid.Nx*j+i] = Nblocks;
+	    if ((i == 0) || (j == 0) || (i == (grid.Nx-1)) || (j == (grid.Ny-1))) fixity[Nblocks] = 0.0;
+	    grid.blockIDs[cell_id] = Nblocks;
 	    Nblocks++;
-	  } // if (grid.cells[grid.Nx*j+i].name == "Player")
-	} // if (grid.cells[grid.Nx*j+i] != nullptr)
-      } // for j = ...
-    } // for i = ...
+	  } // if (grid.cells[cell_id].name == "Player")
+	} // if (grid.cells[cell_id] != nullptr)
+      } // for i = ...
+    } // for j = ...
   } // initialize()
 
   void zeroForces() {
@@ -341,8 +343,8 @@ public:
   void render(void) {
     
     // load material textures
-    //glBindTexture(GL_TEXTURE_2D, Material::textures);
-    //glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, Material::textures);
+    glEnable(GL_TEXTURE_2D);
     
     float halfh = 0.5*h;
 
@@ -353,7 +355,7 @@ public:
       float c = cos(rz[i]);
       float drx = (c-s)*halfh;
       float dry = (c+s)*halfh;
-      float* color  = mat[i]->color;
+      float color[3] = { 1.0f, 1.0f, 1.0f };
       float* coords = mat[i]->coord;
       glColor4f(color[0], color[1], color[2], 1);
       glTexCoord2f(coords[0], coords[1]); glVertex2f(dhdL*px[i]-drx,dhdL*py[i]-dry);
@@ -366,7 +368,7 @@ public:
     } // for i = ...
     // draw player
     if (player_mat != nullptr) {
-      float* color  = player_mat->color;
+      float color[3] = { 1.0f, 1.0f, 1.0f };
       float* coords = player_mat->coord;
       glColor4f(color[0], color[1], color[2], 1);
       glTexCoord2f(coords[0], coords[1]); glVertex2f(dhdL*player_px-halfh,dhdL*player_py-halfh);
@@ -379,8 +381,8 @@ public:
     }
     glEnd();
 
-    //glDisable(GL_TEXTURE_2D);
-    //glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
   } // render()
 
   int Nblocks;

@@ -29,7 +29,7 @@ public:
 	  } else {
 	    key = std::pair<Material*,Material*>(grid.cells[grid.Nx*j+i], grid.cells[grid.Nx*j+i-1]);
 	  }
-	  if (cohesiveZones[key] == NULL) cohesiveZones[key] = instantiateCohesiveZoneModel(key.first, key.second);
+	  if (cohesiveZones[key] == nullptr) cohesiveZones[key] = instantiateCohesiveZoneModel(key.first, key.second);
 	  cohesiveZones[key]->insertFaceX(left,right);
 	} // if ((left >= 0) && (right >= 0))
       } // for i = ...
@@ -47,7 +47,7 @@ public:
 	  } else {
 	    key = std::pair<Material*,Material*>(grid.cells[grid.Nx*j+i], grid.cells[grid.Nx*(j-1)+i]);
 	  }
-	  if (cohesiveZones[key] == NULL) cohesiveZones[key] = instantiateCohesiveZoneModel(key.first, key.second);
+	  if (cohesiveZones[key] == nullptr) cohesiveZones[key] = instantiateCohesiveZoneModel(key.first, key.second);
 	  cohesiveZones[key]->insertFaceY(lower,upper);
 	} // if ((lower >= 0) && (upper >= 0))
       } // for j = ...
@@ -70,7 +70,14 @@ public:
     float defaultMaxStrain = 5.0e-1;
     float defaultFailureStress = defaultStiffness*defaultFailureStrain;
     float defaulFractureEnergy = 0.5*defaultFailureStress*defaultMaxStrain;
-    return new CohesiveDamage(defaultFailureStress,defaulFractureEnergy,defaultStiffness,defaultViscosity);
+    float defaultYieldStress = 0.1*defaultFailureStress;
+    float defaultPlasticFailureStrain = 1.0e+3;
+    if ((firstMaterial->name == "Brick") || (secondMaterial->name == "Brick")) {
+      return new Plasticity(defaultYieldStress,0.1*defaultStiffness,defaultPlasticFailureStrain,defaultStiffness,defaultViscosity);
+    } else {
+      //return new Plasticity(defaultYieldStress,0.1*defaultStiffness,defaultPlasticFailureStrain,defaultStiffness,defaultViscosity);
+      return new CohesiveDamage(defaultFailureStress,defaulFractureEnergy,defaultStiffness,defaultViscosity);
+    }
     //return new KelvinVoigt(defaultStiffness,defaultViscosity);
     /*
     if        (firstMaterial->name == "Rock") {
